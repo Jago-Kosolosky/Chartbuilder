@@ -44,7 +44,7 @@ var error_names = {
 		text: "You have more data than can be rendered or saved correctly",
 		type: 2
 	},
-	"IRREGULAR_TICK_INTERVALS": {
+	"UNEVEN_TICKS": {
 		location: "axis",
 		text: "Your y-axis tick intervals do not divide cleanly",
 		type: 2
