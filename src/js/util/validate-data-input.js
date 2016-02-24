@@ -19,7 +19,7 @@ function makeInputObj(rawInput, status, isValid) {
 function validateDataInput(chartProps) {
 	var input = chartProps.input.raw;
 	var series = chartProps.data;
-	var hasDate = chartProps.scale.hasDate;
+	var scale = chartProps.scale;
 
 	var inputErrors = [];
 
@@ -65,22 +65,30 @@ function validateDataInput(chartProps) {
 	}
 
 	// Whether a column that is supposed to be a date is not in fact a date
-	if(hasDate) {
+	if(scale.hasDate) {
 		var badDateSeries = dataPointTest(
 				series,
 				function(val) { return isNaN(val.entry.getTime()); },
 				function(bd,vals) { return bd.length > 0;}
 			);
 
-
 		if (badDateSeries) {
 			inputErrors.push("NOT_DATES");
 		}
 	}
 
+	console.log(scale)
+	//if (axisTicksUneven(scale.primaryScale.tickValues)) {
+		//inputErrors.push("UNEVEN_TICKS");
+	//}
+
 	return inputErrors;
 
 }
+
+//function axisTicksUneven(tickValues) {
+	//var largest_num = tickValues
+//}
 
 function dataPointTest(series, filterTest, someTest) {
 	// A function to systemitize looping through every datapoint
