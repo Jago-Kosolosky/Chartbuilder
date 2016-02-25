@@ -7,6 +7,8 @@ var filter = require("lodash/filter");
 var some = require("lodash/some");
 var sizeof = require("sizeof");
 
+var catchChartMistakes = require("./catch-chart-mistakes");
+
 var MAX_BYTES = 400000; // Max 400k for chartProps
 
 /*
@@ -79,36 +81,12 @@ function validateDataInput(chartProps) {
 		}
 	}
 
-	if (!axisTicksEven(scale.primaryScale)) {
+	if (!catchChartMistakes.axisTicksEven(scale.primaryScale)) {
 		inputErrors.push("UNEVEN_TICKS");
 	}
 
 	return inputErrors;
 
-}
-
-var interval_base_vals = [1, 2, 5, 10, 25];
-
-function axisTicksEven(scale) {
-	var range = (scale.domain[1] - scale.domain[0]);
-	var magnitude = Math.floor(Math.abs(range)).toString().length;
-	var multiplier = Math.pow(10, (magnitude - 2));
-
-	var acceptable_intervals = map(interval_base_vals, function(d) {
-		return d * multiplier;
-	});
-
-	var are_ticks_even = some(acceptable_intervals, function(inter) {
-		return all_modulo(scale.tickValues, inter);
-	});
-
-	return are_ticks_even;
-}
-
-function all_modulo(tickValues, interval) {
-	return tickValues.reduce(function(prev, curr) {
-		return prev && (curr % interval === 0);
-	}, true);
 }
 
 function dataPointTest(series, filterTest, someTest) {

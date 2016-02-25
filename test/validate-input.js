@@ -5,8 +5,6 @@ var testInput = require("./util/test-input");
 var validateDataInput = require("../src/js/util/validate-data-input");
 var parseDataBySeries = require("../src/js/util/parse-data-by-series");
 
-var tickValuesRegular = [0, 50, 100, 150, 200];
-
 test("validate data input", function(t) {
 	t.plan(8);
 
@@ -99,15 +97,5 @@ test("validate data input", function(t) {
 		}
 	});
 	t.deepEqual(validateResult, ["UNEVEN_SERIES", "NAN_VALUES", "NOT_DATES"], "input with several errors returns them all");
-
-	parsed = parseDataBySeries(testInput.multiple_errors, { checkForDate: true} );
-	validateResult = validateDataInput({
-		input: { raw: testInput.multiple_errors },
-		data: parsed.series,
-		scale: {
-			hasDate: parsed.hasDate,
-			primaryScale: { tickValues: tickValuesRegular }
-		}
-	});
 
 });
