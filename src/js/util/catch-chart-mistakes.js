@@ -1,18 +1,26 @@
 var map = require("lodash/map");
 var some = require("lodash/some");
+var reduce = require("lodash/reduce");
 
 var INTERVAL_BASE_VALS = [1, 2, 2.5, 5, 10, 25]; // used to determine "good" tick intervals
+var MAX_TICKS = 8;
 
 function axis_ticks_even(scale) {
-	var range = (scale.domain[1] - scale.domain[0]) * 0.3;
-	var magnitude = Math.floor(Math.abs(range)).toString().length;
-	var multiplier = Math.pow(10, (magnitude - 1));
+	var range = (scale.domain[1] - scale.domain[0]);
+	var minimum = range / MAX_TICKS;
+	var digits = Math.floor(range).toString().length;
+	var multiplier = Math.pow(10, (digits - 2));
 
-	var acceptable_intervals = map(INTERVAL_BASE_VALS, function(d) {
-		return d * multiplier;
-	});
+	var acceptable_intervals = reduce(INTERVAL_BASE_VALS, function(prev, curr) {
+		var mult = curr * multiplier;
 
-	console.log(acceptable_intervals)
+		if (mult >= minimum) {
+			prev = prev.concat([mult]);
+		}
+
+		return prev;
+	}, []);
+
 	var are_ticks_even = some(acceptable_intervals, function(inter) {
 		return all_modulo(scale.tickValues, inter);
 	});
@@ -22,9 +30,23 @@ function axis_ticks_even(scale) {
 
 // Determine if all tickValues are modulo some interval value
 function all_modulo(tickValues, interval) {
-	return tickValues.reduce(function(prev, curr) {
-		return prev && (curr % interval === 0);
+
+	// we can't modulo-check decimals so we need to multiply by 10^Ndecimals
+	var maxDecimals = reduce(tickValues, function(prevMax, tick) {
+		if ((tick % 1) !== 0) {
+			return Math.max(prevMax, tick.toString().split(".")[1].length);
+		} else {
+			return prevMax;
+		}
+	}, 0);
+
+	var decimalOffset = Math.pow(10, maxDecimals);
+	interval = interval * decimalOffset;
+
+	return reduce(tickValues, function(prev, curr) {
+		return prev && ((curr * decimalOffset) % interval === 0);
 	}, true);
+
 }
 
 module.exports = {
