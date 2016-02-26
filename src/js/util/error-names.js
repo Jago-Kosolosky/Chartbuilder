@@ -45,13 +45,13 @@ var error_names = {
 		type: 2
 	},
 	"UNEVEN_TICKS": {
-		location: "axis",
+		location: "y-axis",
 		text: "Your y-axis tick intervals do not divide cleanly",
 		type: 2
 	},
 	"NO_PREFIX_SUFFIX": {
-		location: "axis",
-		text: "You are missing a prefix and suffix",
+		location: "y-axis",
+		text: "You are missing a prefix and suffix. Consider labelling your data",
 		type: 2
 	},
 	"LARGE_NUMBERS": {

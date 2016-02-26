@@ -1,9 +1,15 @@
 var map = require("lodash/map");
 var some = require("lodash/some");
 var reduce = require("lodash/reduce");
+var sizeof = require("sizeof");
 
+var MAX_BYTES = 100000; // Max 400k for chartProps
 var INTERVAL_BASE_VALS = [1, 2, 2.5, 5, 10, 25]; // used to determine "good" tick intervals
 var MAX_TICKS = 8;
+
+function too_much_data(chartProps) {
+	return (sizeof.sizeof(chartProps) > MAX_BYTES);
+}
 
 function axis_ticks_even(scale) {
 	var range = (scale.domain[1] - scale.domain[0]);
@@ -28,6 +34,10 @@ function axis_ticks_even(scale) {
 	return are_ticks_even;
 }
 
+function no_prefix_suffix(scale) {
+	return (scale.prefix === "" && scale.suffix === "");
+}
+
 // Determine if all tickValues are modulo some interval value
 function all_modulo(tickValues, interval) {
 
@@ -50,5 +60,7 @@ function all_modulo(tickValues, interval) {
 }
 
 module.exports = {
-	axisTicksEven: axis_ticks_even
+	axisTicksEven: axis_ticks_even,
+	tooMuchData: too_much_data,
+	noPrefixSuffix: no_prefix_suffix
 };

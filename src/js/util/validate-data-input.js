@@ -5,11 +5,7 @@ var map = require("lodash/map");
 var max = require("lodash/max");
 var filter = require("lodash/filter");
 var some = require("lodash/some");
-var sizeof = require("sizeof");
-
 var catchChartMistakes = require("./catch-chart-mistakes");
-
-var MAX_BYTES = 400000; // Max 400k for chartProps
 
 /*
 * Return array of input error names
@@ -31,11 +27,6 @@ function validateDataInput(chartProps) {
 	if (input.length === 0) {
 		inputErrors.push("EMPTY");
 		return inputErrors;
-	}
-
-	// Whether the number of bytes in chartProps exceeds our defined maximum
-	if (sizeof.sizeof(chartProps) > MAX_BYTES) {
-		inputErrors.push("TOO_MUCH_DATA");
 	}
 
 	if (series.length && !series[0].values) {
@@ -81,8 +72,30 @@ function validateDataInput(chartProps) {
 		}
 	}
 
+	// Whether a column has NaN
+	var largeNumbers = dataPointTest(
+			series,
+			function(val) { return Math.floor(val.value).toString().length > 4; },
+			function(largeNums, vals) { return largeNums.length > 0;}
+		);
+
+	if (largeNumbers) {
+		inputErrors.push("LARGE_NUMBERS");
+	}
+
+	// Whether the number of bytes in chartProps exceeds our defined maximum
+	if (catchChartMistakes.tooMuchData(chartProps)) {
+		inputErrors.push("TOO_MUCH_DATA");
+	}
+
+	// Whether axis ticks divide evenly
 	if (!catchChartMistakes.axisTicksEven(scale.primaryScale)) {
 		inputErrors.push("UNEVEN_TICKS");
+	}
+
+	// Whether axis is missing pref and suf
+	if (catchChartMistakes.noPrefixSuffix(scale.primaryScale)) {
+		inputErrors.push("NO_PREFIX_SUFFIX");
 	}
 
 	return inputErrors;
